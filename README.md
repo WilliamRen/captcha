@@ -60,3 +60,21 @@ cap2.getImage(function(err,img){
 	$("#imgcap2").html(img);
 })
 ```
+
+与mcm-js-sdk协作
+```js
+	//首先引入js文件
+	<script src="/js/APICloud-rest-SHA1.js"></script>
+	<script src="/js/captcha.apicloud.js"></script>
+```
+
+```js
+	//需要APICloud平台的appId与AppKey
+	var client = new Resource("appId", "appKey");
+	var cap1 = new Captcha(client.appId,client.appCode);
+	//其他操作参考上边的描述
+	cap1.getImage(function(err,img){
+		if(err) return;
+		$("#imgcap1").html(img);
+	})
+```

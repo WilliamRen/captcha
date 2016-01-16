@@ -7,7 +7,7 @@ function Captcha(appId,appCode,appUrl){
 Captcha.prototype.getImage = function(callback){
 	var options = {
 		url:this.appUrl+"/captcha"+(this.token?"/"+this.token:""),
-		method:this.token?"PUT":undefined:"POST",
+		method:this.token?"PUT":"POST",
 		data:{
 		},
 		headers:{
@@ -16,16 +16,14 @@ Captcha.prototype.getImage = function(callback){
 		}
 	}
 	var self =this;
-	api.ajax(options).done(function(data){
-		if(data.id){
-			self.token = data.id;
-			var img = "<img src='data:image/jpeg;base64,"+data.imgbase64 +"' />";
+	api.ajax(options,function(ret,err){
+		if(ret&&ret.id){
+			self.token = ret.id;
+			var img = "<img src='data:image/jpeg;base64,"+ret.imgbase64 +"' />";
 			callback(null,img);
 		}else{
-			callback(data)
+			callback(ret)
 		}
-	}).fail(function(err){
-		callback(err);
 	})
 }
 Captcha.prototype.getToken = function(){
