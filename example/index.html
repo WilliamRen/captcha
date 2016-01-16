@@ -1,0 +1,169 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,initial-scale=1.0,width=device-width"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>Hello APP</title>
+    <script src="./script/jquery1.js"></script>
+  	<script src="./script/APICloud-rest-SHA1.js"></script>
+	<script src="./script/captcha.apicloud.js"></script>
+	<style>
+	body{background-color: #fff;}
+	</style>
+</head>
+<body>
+    <div>
+		手机号:<input type="text" id="mobile">
+		<br>
+		验证码:<input type="text" id="imgcode">
+		<br>
+		<div id="imgcap" style="width:80px;height:30px;">
+			
+		</div>
+		<br>
+		<button id="send">发送验证码</button>
+		<br>
+		验证码:<input type="text" id="vercode">
+		<br>
+		<button id="submit">提交</button>
+		<br>
+		<br>
+		<label for="">注册</label><br>
+		用户名: <input type="text" id="username"><br>
+		密  码: <input type="text" id="password"><br>
+		<button id="register">注册</button>&nbsp;&nbsp;<button id="unregister">不带验证码注册</button>
+		<br>
+		<br>
+		<label for="">重置密码</label><br>
+		密  码: <input type="text" id="cpassword"><br>
+		<button id="reset">重置</button>&nbsp;&nbsp;<button id="unreset">不带验证码重置</button>
+	</div>
+</body>
+<script type="text/javascript">
+    apiready = function(){
+		var appId="";
+		var appKey="";
+		var client = new Resource(appId,appKey);
+		var user = client.Factory("user");
+		var cap = new Captcha(client.appId,client.appCode);
+		cap.getImage(function(err,img){
+			if(err) return;
+			$("#imgcap").html(img);
+		})
+		$("#imgcap").on("click","img",function(){
+			cap.getImage(function(err,img){
+				if(err) return;
+				$("#imgcap").html(img);
+			})
+		})
+		var mobile,vercode,imgcode;
+		$("#send").click(function(){
+			mobile = $("#mobile").val();
+			imgcode = $("#imgcode").val();
+			console.log(mobile);
+			sendCode();
+		})
+		$("#submit").click(function(){
+			vercode = $("#vercode").val();
+			checkCode();
+		})
+		var username,password;
+		$("#register").click(function(){
+			username = $("#username").val();
+			password = $("#password").val();
+			register();
+		})
+		$("#unregister").click(function(){
+			username = $("#username").val();
+			password = $("#password").val();
+			unregister();
+		})
+		var cpassword;
+		$("#reset").click(function(){
+			cpassword = $("#cpassword").val();
+			reset();
+		})
+		$("#unreset").click(function(){
+			cpassword = $("#cpassword").val();
+			unreset();
+		})
+		
+		function sendCode(){
+			console.log(cap.getToken());
+			user.sendvercode({
+				mobile:mobile,
+				imageCode:imgcode,
+				token:cap.getToken()
+			},function(ret,err){
+				console.log("sendCode")
+				console.log(JSON.stringify(ret,null,2))
+				console.log(JSON.stringify(err,null,2))
+			})
+		}
+		function checkCode(){
+			user.checkvercode({
+				mobile:mobile,
+				vercode:vercode
+			},function(ret,err){
+				cap.setToken();
+				console.log("checkCode")
+				console.log(JSON.stringify(ret,null,2))
+				console.log(JSON.stringify(err,null,2))
+			})
+		}
+		function register(){
+			user.save({
+				mobile:mobile,
+				vercode:vercode,
+				username:username,
+				password:password
+			},function(ret,err){
+				cap.setToken();
+				console.log("register")
+				console.log(JSON.stringify(ret,null,2))
+				console.log(JSON.stringify(err,null,2))
+			})
+		}
+		//注册不传验证码
+		function unregister(){
+			user.save({
+				mobile:mobile,
+				username:username,
+				password:password
+			},function(ret,err){
+				cap.setToken();
+				console.log("unregister")
+				console.log(JSON.stringify(ret,null,2))
+				console.log(JSON.stringify(err,null,2))
+			})
+		}
+		function reset(){
+			user.resetByMobile({
+				mobile:mobile,
+				vercode:vercode,
+				username:username,
+				password:cpassword
+			},function(ret,err){
+				cap.setToken();
+				console.log("reset")
+				console.log(JSON.stringify(ret,null,2))
+				console.log(JSON.stringify(err,null,2))
+			})
+		}
+		//重置密码，不传验证码
+		function unreset(){
+			user.resetByMobile({
+				mobile:mobile,
+				username:username,
+				password:cpassword
+			},function(ret,err){
+				cap.setToken();
+				console.log("unreset")
+				console.log(JSON.stringify(ret,null,2))
+				console.log(JSON.stringify(err,null,2))
+			})			
+		}
+    };
+</script>
+</html>
